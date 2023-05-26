@@ -27,60 +27,6 @@ public class PearlJam {
         setMenu();
         setProcessOrders();
     }
-    
-    public void setMenu(){
-        switch (selectedRestaurant) {
-            case "Jade Garden":
-                menu = new String[]{
-                    "Braised Chicken in Black Bean Sauce ($15.00)",
-                    "Braised Goose Web with Vermicelli ($21.00)",
-                    "Deep-fried Hiroshima Oysters ($17.00)",
-                    "Poached Tofu with Dried Shrimps ($12.00)",
-                    "Scrambled Egg White with Milk ($10.00)"
-                };
-                break;
-            case "Cafe Deux Magots":
-                menu = new String[]{
-                    "Sampling Matured Cheese Platter ($23.00)",
-                    "Spring Lobster Salad ($35.00)",
-                    "Spring Organic Omelette ($23.00)",
-                    "Truffle-flavoured Poultry Supreme ($34.00)",
-                    "White Asparagus ($26.00)"
-                };
-                break;
-            case "Trattoria Trussardi":
-                menu = new String[]{
-                    "Caprese Salad ($10.00)",
-                    "Creme caramel ($6.50)",
-                    "Lamb Chops with Apple Sauce ($25.00)",
-                    "Spaghetti alla Puttanesca ($15.00)"
-                };
-                break;
-            case "Libeccio":
-                menu = new String[]{
-                    "Formaggio ($12.50)",
-                    "Ghiaccio ($1.01))",
-                    "Melone ($5.20)",
-                    "Prosciutto and Pesci ($20.23)",
-                    "Risotto ($13.14)",
-                    "Zucchero and Sale ($0.60)"
-                };
-                break;
-            case "Savage Garden":
-                menu = new String[]{
-                    "Abbacchio’s Tea ($1.00)",
-                    "DIO’s Bread ($36.14)",
-                    "Giorno’s Donuts ($6.66)",
-                    "Joseph’s Tequila ($35.00)",
-                    "Kakyoin’s Cherry ($3.50)",
-                    "Kakyoin’s Porridge ($4.44)"
-                };
-                break;
-            default:
-                break;
-        }
-                
-    }
 
     public void serveCustomers(Customer[] customers) {
         // Check if it's within the allowed serving time (13 PM to 14)
@@ -111,28 +57,6 @@ public class PearlJam {
         }
     }
 
-    
-    public String selectMenu() {
-        Scanner sc = new Scanner(System.in);
-
-        System.out.println("Select a menu for " + selectedRestaurant + ":");
-        displayMenu();
-
-        System.out.print("Select the menu item: ");
-        int menuNum = sc.nextInt();
-
-        // Validate the menu index
-        if (menuNum < 1 || menuNum > menu.length) {
-            System.out.println("Invalid menu number. Please try again.");
-            selectMenu();
-            return selectMenu();
-        }
-
-        // Get the selected menu item
-        String selectedMenuItem = menu[menuNum - 1];
-        System.out.println("You selected: " + selectedMenuItem);
-        return selectedMenuItem;
-    }
 
     // Add a customer to the waiting list
     public void addToWaitingList(Customer[] customers) {
@@ -342,54 +266,6 @@ public class PearlJam {
             System.out.println("-+-----------------------------------------+");
         } else {
             System.out.println("No customers in the order processing list for " + selectedRestaurant);
-        }
-    }
-
-    
-    public void displayMenu() {
-        if (selectedRestaurant.equals("Jade Garden")) {
-            // Display menu for Jade Garden
-            System.out.println("Menu for Jade Garden:");
-            System.out.println("[1] Braised Chicken in Black Bean Sauce ($15.00)");
-            System.out.println("[2] Braised Goose Web with Vermicelli ($21.00)");
-            System.out.println("[3] Deep-fried Hiroshima Oysters ($17.00)");
-            System.out.println("[4] Poached Tofu with Dried Shrimps ($12.00)");
-            System.out.println("[5] Scrambled Egg White with Milk ($10.00)");
-        } else if (selectedRestaurant.equals("Trattoria Trussardi")) {
-            // Display menu for Trattoria Trussardi
-            System.out.println("Menu for Trattoria Trussardi:");
-            System.out.println("[1] Caprese Salad ($10.00)");
-            System.out.println("[2] Creme caramel ($6.50)");
-            System.out.println("[3] Lamb Chops with Apple Sauce ($25.00)");
-            System.out.println("[4] Spaghetti alla Puttanesca ($15.00)");
-        } else if (selectedRestaurant.equals("Cafe Deux Magots")) {
-            // Display menu for Cafe Deux Magots
-            System.out.println("Menu for Cafe Deux Magots:");
-            System.out.println("[1] Sampling Matured Cheese Platter ($23.00)");
-            System.out.println("[2] Spring Lobster Salad ($35.00)");
-            System.out.println("[3] Spring Organic Omelette ($23.00)");
-            System.out.println("[4] Truffle-flavoured Poultry Supreme ($34.00)");
-            System.out.println("[5] White Asparagus ($26.00)");
-        } else if (selectedRestaurant.equals("Libeccio")) {
-            // Display menu for Libeccio
-            System.out.println("Menu for Libeccio:");
-            System.out.println("[1] Formaggio ($12.50)");
-            System.out.println("[2] Ghiaccio ($1.01)");
-            System.out.println("[3] Melone ($5.20)");
-            System.out.println("[4] Prosciutto and Pesci ($20.23)");
-            System.out.println("[5] Risotto ($13.14)");
-            System.out.println("[6] Zucchero and Sale ($0.60)");
-        } else if (selectedRestaurant.equals("Savage Garden")) {
-            // Display menu for Savage Garden
-            System.out.println("Menu for Savage Garden:");
-            System.out.println("[1] Abbacchio’s Tea ($1.00)");
-            System.out.println("[2] DIO’s Bread ($36.14)");
-            System.out.println("[3] Giorno’s Donuts ($6.66)");
-            System.out.println("[4] Joseph’s Tequila ($35.00)");
-            System.out.println("[5] Kakyoin’s Cherry ($3.50)");
-            System.out.println("[6] Kakyoin’s Porridge ($4.44)");
-        } else {
-            System.out.println("Menu not available for the specified restaurant.");
         }
     }
 }
