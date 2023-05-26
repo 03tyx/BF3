@@ -130,6 +130,7 @@ public class start {
                     // Create an instance of the PearlJam class with the selected restaurant name
                     
                     PearlJam pearlJam = new PearlJam(currentLocation);
+                    Menu menu = new Menu(currentLocation);
                     switch(input()){
                         case 1:
                             move();
@@ -153,7 +154,7 @@ public class start {
                             break;
                         case 3: 
                             //jump to Pearl Jam (basic feature 3)
-                            pearlJam.displayMenu();
+                            menu.displayMenu();
                             break;
                         case 4:
                             //jump to Moody Blue (basic feature 5)
