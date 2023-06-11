@@ -2,10 +2,15 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package JOJOLand;
+package jojoland;
 
 import java.util.*;
-public class Graph<T extends Comparable<T>, N extends Comparable<N>> {
+
+/**
+ *
+ * @author Xin Jie
+ */
+class Graph<T extends Comparable<T>, N extends Comparable <N>> {
     Vertex<T,N> head;
     int size;
 	
@@ -13,31 +18,31 @@ public class Graph<T extends Comparable<T>, N extends Comparable<N>> {
         head=null;
         size=0;
     }
-   
-    public void clear(){   
-        head=null;
-    }
-
-    public int getSize(){
-        return this.size;
-    }
-   
-    public int getDeg(T v) {
-        if (hasVertex(v) == true) {  // Checks if the graph contains the specified vertex
-            Vertex<T, N> temp = head;  // Assigns the head of the vertex list to a temporary variable
-
-            while (temp != null) {  // Iterates through each vertex in the list
-                if (temp.vertexInfo.compareTo(v) == 0)  // Compares the vertex value to the specified value
-                    return temp.deg;  // Returns the degree of the vertex if it matches
-
-                temp = temp.nextVertex;  // Moves to the next vertex in the list
+    
+    public int getDeg(T v){
+        if (hasVertex(v)==true){
+            Vertex<T,N> temp = head;
+            while (temp!=null){
+                if ( temp.vertexInfo.compareTo( v ) == 0 )
+                    return temp.deg;
+                temp=temp.nextVertex;
             }
         }
-
-        return -1;  // Returns -1 if the vertex is not found in the graph
+        return -1;
     }
-
-         
+    
+    //for extra feature 4
+    //resetting the vertices in case the values of the variables have been changed 
+    public void resetVertices() {
+        Vertex<T, N> temp = head;
+        while (temp != null) {
+            temp.setDistance(Integer.MAX_VALUE);
+            temp.setVisited(false);
+            temp.setShortestPaths(new ArrayList());
+            temp = temp.nextVertex;
+        }
+    } 
+    
     public boolean hasVertex(T v){
         if (head==null)
             return false;
@@ -50,7 +55,7 @@ public class Graph<T extends Comparable<T>, N extends Comparable<N>> {
         return false;
     }
 
-    public boolean addVertex(T v){
+    public void addVertex(T v){
         if (hasVertex(v)==false){
             Vertex<T,N> temp=head;
             Vertex<T,N> newVertex = new Vertex<>(v, null);
@@ -65,21 +70,20 @@ public class Graph<T extends Comparable<T>, N extends Comparable<N>> {
                 previous.nextVertex=newVertex;
             }
             size++;
-            return true;
-        }else
-            return false;
-    }
-   
-    public int getIndex(T v){
-        Vertex<T,N> temp = head;
-        int pos=0;
-        while (temp!=null){
-            if ( temp.vertexInfo.compareTo( v ) == 0 )
-                return pos;
-            temp=temp.nextVertex;
-            pos+=1;
         }
-        return -1;
+    }
+    
+    //for extra feature 4
+    //method to get the required vertex
+    public Vertex<T, N> getVertex(T v){
+        Vertex<T, N> temp = head;
+        while (temp != null) {
+            if (temp.vertexInfo.compareTo(v) == 0) {
+                return temp;
+            }
+            temp = temp.nextVertex;
+        }
+        return null;
     }
    
     public ArrayList<T> getAllVertexObjects(){
@@ -102,20 +106,9 @@ public class Graph<T extends Comparable<T>, N extends Comparable<N>> {
         return list;
     }
    
-    public T getVertex(int pos){
-        if (pos>size-1 || pos<0) 
-            return null;
-        Vertex<T,N> temp = head;
-        for (int i=0; i<pos; i++)
-            temp=temp.nextVertex;
-        return temp.vertexInfo;
-    }
-
-    public boolean addEdge(T source, T destination, N w){
-        if(head==null)
-            return false;
-        if(!hasVertex(source) || !hasVertex(destination)) 
-         return false;
+    public void addEdge(T source, T destination, N w){
+        addVertex(source);
+        addVertex(destination);
         Vertex<T,N> sourceVertex = head;
         while (sourceVertex!=null){
             if ( sourceVertex.vertexInfo.compareTo( source ) == 0 ){
@@ -124,20 +117,18 @@ public class Graph<T extends Comparable<T>, N extends Comparable<N>> {
                 while (destinationVertex!=null){
                     if ( destinationVertex.vertexInfo.compareTo( destination ) == 0 ){
                         // Reached destination vertex, add edge here
-                        Edge<T,N> newEdgeOne = new Edge<>(destinationVertex, w, sourceVertex.firstEdge);
-                        Edge<T,N> newEdgeTwo = new Edge<>(sourceVertex, w, destinationVertex.firstEdge);                  
+                        Edge<T,N> newEdgeOne = new Edge<>(sourceVertex, destinationVertex, w, sourceVertex.firstEdge);
+                        Edge<T,N> newEdgeTwo = new Edge<>(destinationVertex, sourceVertex, w, destinationVertex.firstEdge);                  
                         sourceVertex.firstEdge=newEdgeOne;
                         destinationVertex.firstEdge=newEdgeTwo;
                         sourceVertex.deg++;
                         destinationVertex.deg++;
-                        return true;
                     }
                     destinationVertex=destinationVertex.nextVertex;
                 }
             }
             sourceVertex=sourceVertex.nextVertex;
         }
-        return false;
     }
    
     public boolean hasEdge(T source, T destination){
@@ -217,5 +208,26 @@ public class Graph<T extends Comparable<T>, N extends Comparable<N>> {
             temp=temp.nextVertex;
         }  
     }
-
+    
+    //for extra feature
+    public void resetEdgeWeight(T source, T destination, N w){
+        Vertex<T,N> sourceVertex = getVertex(source);
+        Vertex<T,N> destinationVertex = getVertex(destination);
+        Edge<T, N> resetEdge = sourceVertex.firstEdge;
+        while(resetEdge!=null){
+            if(resetEdge.toVertex.vertexInfo.compareTo(destination) == 0){
+                resetEdge.setWeight(w);
+            }
+            resetEdge = resetEdge.nextEdge;
+        }
+        Edge<T, N> resetEdgeTwo = destinationVertex.firstEdge;
+        while(resetEdgeTwo!=null){
+            if(resetEdgeTwo.toVertex.vertexInfo.compareTo(source) == 0){
+                resetEdgeTwo.setWeight(w);
+                break;
+            }
+            resetEdgeTwo = resetEdgeTwo.nextEdge;
+        }
+    }
+   
 }
