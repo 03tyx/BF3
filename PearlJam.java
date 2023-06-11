@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PearlJam {
     private List<orderList> waitingList;
@@ -87,22 +88,50 @@ public class PearlJam {
         orderProcessingList.clear();
         waitingList = sortWaitingList();
         List<orderList> orderedList = new ArrayList<>(waitingList);
-        Collections.sort(orderedList, Comparator.comparing(orderList::getAge).reversed());
 
+        // Separate orders with known and unknown age
+        List<orderList> orderedWithAge = new ArrayList<>();
+        List<orderList> orderedWithoutAge = new ArrayList<>();
+
+        for (orderList order : orderedList) {
+            if ("N/A".equals(order.getAge())) {
+                orderedWithoutAge.add(order);
+            } else {
+                orderedWithAge.add(order);
+            }
+        }
+
+        // Sort the orders with known age based on age (oldest to youngest)
+        orderedWithAge.sort(Comparator.comparingInt(order -> {
+            String age = order.getAge();
+            if ("N/A".equals(age)) {
+                return Integer.MAX_VALUE; // Assign a high value to unknown ages
+            }
+            return Integer.parseInt(age);
+        }));
+
+        // Select the oldest and youngest customers in turns until everyone is served
         int left = 0;
-        int right = orderedList.size() - 1;
+        int right = orderedWithAge.size() - 1;
 
         while (left <= right) {
-            orderProcessingList.add(orderedList.get(left));
+            orderProcessingList.add(orderedWithAge.get(right));
             if (left != right) {
-                orderProcessingList.add(orderedList.get(right));
+                orderProcessingList.add(orderedWithAge.get(left));
             }
             left++;
             right--;
         }
+
+        // Add the orders with unknown age to the end of the order processing list
+        orderProcessingList.addAll(orderedWithoutAge);
     }
 
+
+    
     // Process orders for Trattoria Trussardi restaurant
+
+
     private void processTrattoriaTrussardiOrders(List<orderList> restaurantOrders) {
         orderProcessingList.clear();
         waitingList = sortWaitingList();
@@ -112,71 +141,188 @@ public class PearlJam {
 
         // Categorize customers based on gender and age
         for (orderList customer : waitingList) {
-            if (customer.getGender().equalsIgnoreCase("Male")) {
+            if (customer.getAge().equalsIgnoreCase("N/A")) {
+                unspecified.add(customer);
+            } else if (customer.getGender().equalsIgnoreCase("Male")) {
                 males.add(customer);
             } else if (customer.getGender().equalsIgnoreCase("Female")) {
                 females.add(customer);
-            } else {
-                unspecified.add(customer);
             }
         }
 
-        // Process orders based on the rule
+        // Sort the categorized lists by age
+        males.sort(Comparator.comparing(orderList::getAge, Comparator.nullsLast(Comparator.naturalOrder())));
+        females.sort(Comparator.comparing(orderList::getAge, Comparator.nullsLast(Comparator.naturalOrder())));
+
+        // Process orders based on the alternating pattern
+        boolean serveYoungestMan = true;
+
         while (!males.isEmpty() || !females.isEmpty()) {
-            if (!males.isEmpty()) {
-                orderList youngestMale = Collections.min(males, Comparator.comparing(orderList::getAge));
-                orderList oldestMale = Collections.max(males, Comparator.comparing(orderList::getAge));
-
-                orderProcessingList.add(youngestMale);
-                orderProcessingList.add(oldestMale);
-
-                males.remove(youngestMale);
-                males.remove(oldestMale);
+            if (serveYoungestMan) {
+                if (!males.isEmpty()) {
+                    orderList youngestMale = males.get(0);
+                    orderProcessingList.add(youngestMale);
+                    males.remove(0);
+                } else if (!females.isEmpty()) {
+                    orderList oldestFemale = females.get(females.size() - 1);
+                    orderProcessingList.add(oldestFemale);
+                    females.remove(females.size() - 1);
+                }
+            } else {
+                if (!females.isEmpty()) {
+                    orderList oldestFemale = females.get(females.size() - 1);
+                    orderProcessingList.add(oldestFemale);
+                    females.remove(females.size() - 1);
+                } else if (!males.isEmpty()) {
+                    orderList youngestMale = males.get(0);
+                    orderProcessingList.add(youngestMale);
+                    males.remove(0);
+                }
             }
 
-            if (!females.isEmpty()) {
-                orderList oldestFemale = Collections.max(females, Comparator.comparing(orderList::getAge));
-                orderList youngestFemale = Collections.min(females, Comparator.comparing(orderList::getAge));
-
-                orderProcessingList.add(oldestFemale);
-                orderProcessingList.add(youngestFemale);
-
-                females.remove(oldestFemale);
-                females.remove(youngestFemale);
-            }
+            serveYoungestMan = !serveYoungestMan;
         }
 
         // Add remaining unspecified customers to the order processing list
         orderProcessingList.addAll(unspecified);
     }
 
+
+
+
+
     // Process orders for Libeccio restaurant
+//    private void processLibeccioOrders(List<orderList> restaurantOrders) {
+//        orderProcessingList.clear();
+//        waitingList = sortWaitingList();
+//        int index = dayNum - 1;
+//
+//        while (!waitingList.isEmpty()) {
+//            int customerIndex = index % waitingList.size();
+//            orderList customer = waitingList.remove(customerIndex);
+//            orderProcessingList.add(customer);
+//        }
+//    }
+//    private void processLibeccioOrders(List<orderList> restaurantOrders) {
+//        orderProcessingList.clear();
+//        List<orderList> waitingListCopy = new ArrayList<>(sortWaitingList());
+//
+//        int dayNum = 1;
+//        int index = 0;
+//        int count = 1;
+//
+//        while (!waitingListCopy.isEmpty()) {
+//            int customerIndex = index % waitingListCopy.size();
+//            orderList customer = waitingListCopy.get(customerIndex);
+//
+//            // Check if the customer's count is a multiple of the current day number
+//            if (count % dayNum == 0) {
+//                // Remove the customer from the waiting list copy and add them to the order processing list
+//                orderProcessingList.add(customer);
+//                waitingListCopy.remove(customerIndex);
+//
+//                // Update the index to point to the next customer in the queue
+//                if (customerIndex < waitingListCopy.size()) {
+//                    index = customerIndex;
+//                } else {
+//                    index = 0;
+//                }
+//            } else {
+//                // Move to the next customer in the queue
+//                index++;
+//            }
+//
+//            count++; // Increment the count
+//            dayNum++; // Increment the current day number
+//        }
+//    }
     private void processLibeccioOrders(List<orderList> restaurantOrders) {
         orderProcessingList.clear();
-        waitingList = sortWaitingList();
-        int index = dayNum - 1;
+        List<orderList> waitingListCopy = new ArrayList<>(sortWaitingList());
 
-        while (!waitingList.isEmpty()) {
-            int customerIndex = index % waitingList.size();
-            orderList customer = waitingList.remove(customerIndex);
-            orderProcessingList.add(customer);
+        int dayNum = 1;
+        int index = 0;
+        int count = 1;
+
+        while (!waitingListCopy.isEmpty()) {
+            int customerIndex = index % waitingListCopy.size();
+            orderList customer = waitingListCopy.get(customerIndex);
+
+            // Check if the customer's count is a multiple of the current day number
+            if (count % dayNum == 0) {
+                // Remove the customer from the waiting list copy and add them to the order processing list
+                orderProcessingList.add(customer);
+                waitingListCopy.remove(customerIndex);
+
+                // Update the index to point to the next customer in the queue
+                if (customerIndex < waitingListCopy.size()) {
+                    index = customerIndex;
+                } else {
+                    index = 0;
+                }
+
+                // Reset count and dayNum for the next iteration
+                count = 1;
+                dayNum = 1;
+            } else {
+                // Move to the next customer in the queue
+                index++;
+
+                // Increment the count
+                count++;
+            }
         }
     }
+
+
+
 
     // Process orders for Savage Garden restaurant
+//    private void processSavageGardenOrders(List<orderList> restaurantOrders) {
+//        orderProcessingList.clear();
+//        waitingList = sortWaitingList();
+//        int index = dayNum - 1;
+//
+//        while (!waitingList.isEmpty()) {
+//            int customerIndex = index % waitingList.size();
+//            orderList customer = waitingList.remove(customerIndex);
+//            orderProcessingList.add(customer);
+//            index++;
+//        }
+//    }
     private void processSavageGardenOrders(List<orderList> restaurantOrders) {
         orderProcessingList.clear();
-        waitingList = sortWaitingList();
-        int index = dayNum - 1;
+        List<orderList> waitingListCopy = new ArrayList<>(sortWaitingList());
 
-        while (!waitingList.isEmpty()) {
-            int customerIndex = index % waitingList.size();
-            orderList customer = waitingList.remove(customerIndex);
-            orderProcessingList.add(customer);
-            index++;
+        int dayNum = 1;
+        int index = 0;
+
+        while (!waitingListCopy.isEmpty()) {
+            int customerIndex = index % waitingListCopy.size();
+            orderList customer = waitingListCopy.get(customerIndex);
+
+            // Check if the customer's count matches the current day number
+            if (customerIndex + 1 == dayNum) {
+                // Remove the customer from the waiting list copy and add them to the order processing list
+                orderProcessingList.add(customer);
+                waitingListCopy.remove(customerIndex);
+
+                // Reset the index and dayNum for the next iteration
+                index = 0;
+                dayNum = 1;
+            } else {
+                // Move to the next customer in the queue
+                index++;
+
+                // If we reach the end of the queue, start over from the last person and move in reverse order
+                if (index >= waitingListCopy.size()) {
+                    index = waitingListCopy.size() - 1;
+                    dayNum++;
+                }
+            }
         }
     }
-    
+
     // Sort orders within each restaurant based on restaurant logic and arrival time(need to be corrected)
     public void sortOrdersWithinRestaurants() {
         waitingList = sortWaitingList();
@@ -244,24 +390,24 @@ public class PearlJam {
         }
 
         if (found) {
-            System.out.println("+----+--------------------+-----+--------+-");
-            System.out.println("| No | Name               | Age | Gender |");
-            System.out.println("+----+--------------------+-----+--------+-");
+            System.out.println("+----+--------------------------+-----+--------+-");
+            System.out.println("| No | Name                     | Age | Gender |");
+            System.out.println("+----+--------------------------+-----+--------+-");
             int count = 1;
             for (orderList customer : waitingList) {
                 if (customer.getRestaurant().equals(selectedRestaurant)) {
-                    System.out.printf("| %-2d | %-18s | %-3s | %-6s |\n", count, customer.getName(), customer.getAge(), customer.getGender());
+                    System.out.printf("| %-2d | %-25s | %-3s | %-6s |\n", count, customer.getName(), customer.getAge(), customer.getGender());
                     count++;
                 }
             }
-            System.out.println("+----+--------------------+-----+----------+-");
-            System.out.println("-+----------------------------------------+");
-            System.out.println("| Order                                  |");
-            System.out.println("-+----------------------------------------+");
+            System.out.println("+----+-------------------------+-----+----------+-");
+            System.out.println("-+-------------------------------------------+");
+            System.out.println("| Order                                      |");
+            System.out.println("-+-------------------------------------------+");
             for (orderList customer : waitingList) {
                 System.out.printf("| %-38s |\n", customer.getFood());
             }
-            System.out.println("-+-----------------------------------------+");
+            System.out.println("-+--------------------------------------------+");
         } else {
             System.out.println("No customers in the waiting list for " + selectedRestaurant);
         }
@@ -281,24 +427,24 @@ public class PearlJam {
         }
 
         if (found) {
-            System.out.println("+----+--------------------+-----+--------+-");
-            System.out.println("| No | Name               | Age | Gender |");
-            System.out.println("+----+--------------------+-----+--------+-");
+            System.out.println("+----+----------------------------+-----+--------+-");
+            System.out.println("| No | Name                       | Age | Gender |");
+            System.out.println("+----+----------------------------+-----+--------+-");
             int count = 1;
             for (orderList customer : orderProcessingList) {
                 if (customer.getRestaurant().equals(selectedRestaurant)) {
-                    System.out.printf("| %-2d | %-18s | %-3s | %-6s |\n", count, customer.getName(), customer.getAge(), customer.getGender());
+                    System.out.printf("| %-2d | %-25s | %-3s | %-6s |\n", count, customer.getName(), customer.getAge(), customer.getGender());
                     count++;
                 }
             }
-            System.out.println("+----+--------------------+-----+----------+-");
-            System.out.println("-+----------------------------------------+");
-            System.out.println("| Order                                  |");
-            System.out.println("-+----------------------------------------+");
+            System.out.println("+----+-----------------------+-----+----------+-");
+            System.out.println("-+-------------------------------------------+");
+            System.out.println("| Order                                      |");
+            System.out.println("-+-------------------------------------------+");
             for (orderList customer : orderProcessingList) {
                 System.out.printf("| %-38s |\n", customer.getFood());
             }
-            System.out.println("-+-----------------------------------------+");
+            System.out.println("-+--------------------------------------------+");
         } else {
             System.out.println("No customers in the order processing list for " + selectedRestaurant);
         }
