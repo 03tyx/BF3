@@ -130,8 +130,6 @@ public class PearlJam {
 
     
     // Process orders for Trattoria Trussardi restaurant
-
-
     private void processTrattoriaTrussardiOrders(List<orderList> restaurantOrders) {
         orderProcessingList.clear();
         waitingList = sortWaitingList();
@@ -335,35 +333,101 @@ public class PearlJam {
         }
 
         for (List<orderList> restaurantOrders : ordersByRestaurant.values()) {
-            //Sort orders based on arrival time
-            restaurantOrders.sort(Comparator.comparing(orderList::getArrivalTime));
+            // Sort orders based on arrival time
+            restaurantOrders.sort(new Comparator<orderList>() {
+                @Override
+                public int compare(orderList order1, orderList order2) {
+                    if (order1.getArrivalTime() < order2.getArrivalTime()) {
+                        return -1;
+                    } else if (order1.getArrivalTime() > order2.getArrivalTime()) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+            });
 
             // Sort customers based on restaurant logic
             String restaurantName = restaurantOrders.get(0).getRestaurant();
             switch (restaurantName) {
                 case "Jade Garden":
                     // Sort Jade Garden orders based on specific logic
-                    restaurantOrders.sort(Comparator.comparingInt(orderList -> orderList.getDayNum()));
+                    restaurantOrders.sort(new Comparator<orderList>() {
+                        @Override
+                        public int compare(orderList order1, orderList order2) {
+                            if (order1.getDayNum() < order2.getDayNum()) {
+                                return -1;
+                            } else if (order1.getDayNum() > order2.getDayNum()) {
+                                return 1;
+                            } else {
+                                return 0;
+                            }
+                        }
+                    });
                     processJadeGardenOrders(restaurantOrders);
                     break;
                 case "Cafe Deux Magots":
                     // Sort Cafe Deux Magots orders based on specific logic
-                    restaurantOrders.sort(Comparator.comparingInt(orderList -> orderList.getDayNum()));
+                    restaurantOrders.sort(new Comparator<orderList>() {
+                        @Override
+                        public int compare(orderList order1, orderList order2) {
+                            if (order1.getDayNum() < order2.getDayNum()) {
+                                return -1;
+                            } else if (order1.getDayNum() > order2.getDayNum()) {
+                                return 1;
+                            } else {
+                                return 0;
+                            }
+                        }
+                    });
                     processCafeDeuxMagotsOrders(restaurantOrders);
                     break;
                 case "Trattoria Trussardi":
                     // Sort Trattoria Trussardi orders based on specific logic
-                    restaurantOrders.sort(Comparator.comparingInt(orderList -> orderList.getDayNum()));
+                    restaurantOrders.sort(new Comparator<orderList>() {
+                        @Override
+                        public int compare(orderList order1, orderList order2) {
+                            if (order1.getDayNum() < order2.getDayNum()) {
+                                return -1;
+                            } else if (order1.getDayNum() > order2.getDayNum()) {
+                                return 1;
+                            } else {
+                                return 0;
+                            }
+                        }
+                    });
                     processTrattoriaTrussardiOrders(restaurantOrders);
                     break;
                 case "Libeccio":
                     // Sort Libeccio orders based on specific logic
-                    restaurantOrders.sort(Comparator.comparingInt(orderList -> orderList.getDayNum()));
+                    restaurantOrders.sort(new Comparator<orderList>() {
+                        @Override
+                        public int compare(orderList order1, orderList order2) {
+                            if (order1.getDayNum() < order2.getDayNum()) {
+                                return -1;
+                            } else if (order1.getDayNum() > order2.getDayNum()) {
+                                return 1;
+                            } else {
+                                return 0;
+                            }
+                        }
+                    });
                     processLibeccioOrders(restaurantOrders);
                     break;
                 case "Savage Garden":
                     // Sort Savage Garden orders based on specific logic
-                    restaurantOrders.sort(Comparator.comparingInt(orderList -> orderList.getDayNum()));
+                    restaurantOrders.sort(new Comparator<orderList>() {
+                        @Override
+                        public int compare(orderList order1, orderList order2) {
+                            if (order1.getDayNum() < order2.getDayNum()) {
+                                return -1;
+                            } else if (order1.getDayNum() > order2.getDayNum()) {
+                                return 1;
+                            } else {
+                                return 0;
+                            }
+                        }
+                    });
                     processSavageGardenOrders(restaurantOrders);
                     break;
                 default:
@@ -372,9 +436,6 @@ public class PearlJam {
             }
         }
     }
-    
-
-
 
 
     // Display the waiting list of the selected restaurant
@@ -401,9 +462,9 @@ public class PearlJam {
                 }
             }
             System.out.println("+----+-------------------------+-----+----------+-");
-            System.out.println("-+-------------------------------------------+");
-            System.out.println("| Order                                      |");
-            System.out.println("-+-------------------------------------------+");
+            System.out.println("-+----------------------------------------+");
+            System.out.println("| Order                                   |");
+            System.out.println("-+----------------------------------------+");
             for (orderList customer : waitingList) {
                 System.out.printf("| %-38s |\n", customer.getFood());
             }
@@ -438,9 +499,9 @@ public class PearlJam {
                 }
             }
             System.out.println("+----+-----------------------+-----+----------+-");
-            System.out.println("-+-------------------------------------------+");
-            System.out.println("| Order                                      |");
-            System.out.println("-+-------------------------------------------+");
+            System.out.println("-+----------------------------------------+");
+            System.out.println("| Order                                   |");
+            System.out.println("-+----------------------------------------+");
             for (orderList customer : orderProcessingList) {
                 System.out.printf("| %-38s |\n", customer.getFood());
             }
