@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 public class PearlJam {
@@ -131,195 +132,123 @@ public class PearlJam {
     
     // Process orders for Trattoria Trussardi restaurant
     private void processTrattoriaTrussardiOrders(List<orderList> restaurantOrders) {
-        orderProcessingList.clear();
-        waitingList = sortWaitingList();
-        List<orderList> males = new ArrayList<>();
-        List<orderList> females = new ArrayList<>();
-        List<orderList> unspecified = new ArrayList<>();
+    orderProcessingList.clear();
+    waitingList = sortWaitingList();
+    List<orderList> males = new ArrayList<>();
+    List<orderList> females = new ArrayList<>();
+    List<orderList> unspecified = new ArrayList<>();
 
-        // Categorize customers based on gender and age
-        for (orderList customer : waitingList) {
-            if (customer.getAge().equalsIgnoreCase("N/A")) {
-                unspecified.add(customer);
-            } else if (customer.getGender().equalsIgnoreCase("Male")) {
-                males.add(customer);
-            } else if (customer.getGender().equalsIgnoreCase("Female")) {
-                females.add(customer);
-            }
+    // Categorize customers based on gender and age
+    for (orderList customer : waitingList) {
+        if (customer.getAge().equalsIgnoreCase("N/A")) {
+            unspecified.add(customer);
+        } else if (customer.getGender().equalsIgnoreCase("Male")) {
+            males.add(customer);
+        } else if (customer.getGender().equalsIgnoreCase("Female")) {
+            females.add(customer);
         }
-
-        // Sort the categorized lists by age
-        males.sort(Comparator.comparing(orderList::getAge, Comparator.nullsLast(Comparator.naturalOrder())));
-        females.sort(Comparator.comparing(orderList::getAge, Comparator.nullsLast(Comparator.naturalOrder())));
-
-        // Process orders based on the alternating pattern
-        boolean serveYoungestMan = true;
-
-        while (!males.isEmpty() || !females.isEmpty()) {
-            if (serveYoungestMan) {
-                if (!males.isEmpty()) {
-                    orderList youngestMale = males.get(0);
-                    orderProcessingList.add(youngestMale);
-                    males.remove(0);
-                } else if (!females.isEmpty()) {
-                    orderList oldestFemale = females.get(females.size() - 1);
-                    orderProcessingList.add(oldestFemale);
-                    females.remove(females.size() - 1);
-                }
-            } else {
-                if (!females.isEmpty()) {
-                    orderList oldestFemale = females.get(females.size() - 1);
-                    orderProcessingList.add(oldestFemale);
-                    females.remove(females.size() - 1);
-                } else if (!males.isEmpty()) {
-                    orderList youngestMale = males.get(0);
-                    orderProcessingList.add(youngestMale);
-                    males.remove(0);
-                }
-            }
-
-            serveYoungestMan = !serveYoungestMan;
-        }
-
-        // Add remaining unspecified customers to the order processing list
-        orderProcessingList.addAll(unspecified);
     }
 
+    // Sort the categorized lists by age in ascending order
+    males.sort(Comparator.comparing(orderList::getAge, Comparator.nullsLast(Comparator.naturalOrder())));
+    females.sort(Comparator.comparing(orderList::getAge, Comparator.nullsLast(Comparator.naturalOrder())));
+
+    // Process orders based on the specified serving pattern
+    while (!males.isEmpty() || !females.isEmpty()) {
+        if (!males.isEmpty()) {
+            orderList youngestMale = males.get(0);
+            orderProcessingList.add(youngestMale);
+            males.remove(0);
+        }
+
+        if (!females.isEmpty()) {
+            orderList oldestFemale = females.get(females.size() - 1);
+            orderProcessingList.add(oldestFemale);
+            females.remove(females.size() - 1);
+        }
+
+        if (!males.isEmpty()) {
+            orderList oldestMale = males.get(males.size() - 1);
+            orderProcessingList.add(oldestMale);
+            males.remove(males.size() - 1);
+        }
+
+        if (!females.isEmpty()) {
+            orderList youngestFemale = females.get(0);
+            orderProcessingList.add(youngestFemale);
+            females.remove(0);
+        }
+    }
+
+    // Add remaining unspecified customers to the order processing list
+    orderProcessingList.addAll(unspecified);
+}
 
 
 
 
     // Process orders for Libeccio restaurant
-//    private void processLibeccioOrders(List<orderList> restaurantOrders) {
-//        orderProcessingList.clear();
-//        waitingList = sortWaitingList();
-//        int index = dayNum - 1;
-//
-//        while (!waitingList.isEmpty()) {
-//            int customerIndex = index % waitingList.size();
-//            orderList customer = waitingList.remove(customerIndex);
-//            orderProcessingList.add(customer);
-//        }
-//    }
-//    private void processLibeccioOrders(List<orderList> restaurantOrders) {
-//        orderProcessingList.clear();
-//        List<orderList> waitingListCopy = new ArrayList<>(sortWaitingList());
-//
-//        int dayNum = 1;
-//        int index = 0;
-//        int count = 1;
-//
-//        while (!waitingListCopy.isEmpty()) {
-//            int customerIndex = index % waitingListCopy.size();
-//            orderList customer = waitingListCopy.get(customerIndex);
-//
-//            // Check if the customer's count is a multiple of the current day number
-//            if (count % dayNum == 0) {
-//                // Remove the customer from the waiting list copy and add them to the order processing list
-//                orderProcessingList.add(customer);
-//                waitingListCopy.remove(customerIndex);
-//
-//                // Update the index to point to the next customer in the queue
-//                if (customerIndex < waitingListCopy.size()) {
-//                    index = customerIndex;
-//                } else {
-//                    index = 0;
-//                }
-//            } else {
-//                // Move to the next customer in the queue
-//                index++;
-//            }
-//
-//            count++; // Increment the count
-//            dayNum++; // Increment the current day number
-//        }
-//    }
-    private void processLibeccioOrders(List<orderList> restaurantOrders) {
+    public void processLibeccioOrders(List<orderList> restaurantOrders) {
         orderProcessingList.clear();
-        List<orderList> waitingListCopy = new ArrayList<>(sortWaitingList());
-
-        int dayNum = 1;
-        int index = 0;
+        List<orderList> waitinglist_copy = new ArrayList<>(waitingList);
+        Stack<orderList> reverse = new Stack<>();
         int count = 1;
-
-        while (!waitingListCopy.isEmpty()) {
-            int customerIndex = index % waitingListCopy.size();
-            orderList customer = waitingListCopy.get(customerIndex);
-
-            // Check if the customer's count is a multiple of the current day number
-            if (count % dayNum == 0) {
-                // Remove the customer from the waiting list copy and add them to the order processing list
-                orderProcessingList.add(customer);
-                waitingListCopy.remove(customerIndex);
-
-                // Update the index to point to the next customer in the queue
-                if (customerIndex < waitingListCopy.size()) {
-                    index = customerIndex;
-                } else {
-                    index = 0;
+        while (!waitinglist_copy.isEmpty()) {
+            List<orderList> temp = new ArrayList<>();
+            for (int i = 0; i < waitinglist_copy.size(); i++) {
+                if (count % dayNum == 0) {
+                    reverse.push(waitinglist_copy.get(i));
+                    temp.add(waitinglist_copy.get(i));
                 }
-
-                // Reset count and dayNum for the next iteration
-                count = 1;
-                dayNum = 1;
-            } else {
-                // Move to the next customer in the queue
-                index++;
-
-                // Increment the count
                 count++;
             }
+            for (orderList removed : temp) {
+                waitinglist_copy.remove(removed);
+            }
+            temp.clear();
+        }
+
+        while (!reverse.isEmpty()) {
+            orderProcessingList.add(reverse.pop());
         }
     }
-
-
+    
 
 
     // Process orders for Savage Garden restaurant
-//    private void processSavageGardenOrders(List<orderList> restaurantOrders) {
-//        orderProcessingList.clear();
-//        waitingList = sortWaitingList();
-//        int index = dayNum - 1;
-//
-//        while (!waitingList.isEmpty()) {
-//            int customerIndex = index % waitingList.size();
-//            orderList customer = waitingList.remove(customerIndex);
-//            orderProcessingList.add(customer);
-//            index++;
-//        }
-//    }
-    private void processSavageGardenOrders(List<orderList> restaurantOrders) {
+    public void processSavageGardenOrders(List<orderList> restaurantOrders) {
         orderProcessingList.clear();
-        List<orderList> waitingListCopy = new ArrayList<>(sortWaitingList());
-
-        int dayNum = 1;
-        int index = 0;
+        List<orderList> waitingListCopy = new ArrayList<>(waitingList);
+        int queueSize = waitingListCopy.size();
+        int count = 1;
+        int forwardIndex = 0;
+        int reverseIndex = queueSize - 1;
 
         while (!waitingListCopy.isEmpty()) {
-            int customerIndex = index % waitingListCopy.size();
-            orderList customer = waitingListCopy.get(customerIndex);
-
-            // Check if the customer's count matches the current day number
-            if (customerIndex + 1 == dayNum) {
-                // Remove the customer from the waiting list copy and add them to the order processing list
-                orderProcessingList.add(customer);
-                waitingListCopy.remove(customerIndex);
-
-                // Reset the index and dayNum for the next iteration
-                index = 0;
-                dayNum = 1;
-            } else {
-                // Move to the next customer in the queue
-                index++;
-
-                // If we reach the end of the queue, start over from the last person and move in reverse order
-                if (index >= waitingListCopy.size()) {
-                    index = waitingListCopy.size() - 1;
-                    dayNum++;
+            if (count == dayNum) {
+                if (forwardIndex <= reverseIndex) {
+                    orderList matched = waitingListCopy.get(forwardIndex);
+                    orderProcessingList.add(matched);
+                    waitingListCopy.remove(forwardIndex);
+                    reverseIndex--;
+                } else {
+                    orderList matched = waitingListCopy.get(reverseIndex);
+                    orderProcessingList.add(matched);
+                    waitingListCopy.remove(reverseIndex);
+                    forwardIndex++;
                 }
+                count = 1;
+                queueSize--;
+            } else {
+                count++;
+                forwardIndex = (forwardIndex + 1) % queueSize;
+                reverseIndex = (reverseIndex - 1 + queueSize) % queueSize;
             }
         }
     }
+
+
+
 
     // Sort orders within each restaurant based on restaurant logic and arrival time(need to be corrected)
     public void sortOrdersWithinRestaurants() {
