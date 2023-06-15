@@ -27,24 +27,51 @@ public class ThusSpokeRohanKishibe {
         List<String> destinations = promptLocationsToVisit();
         System.out.println("======================================================================");
 
-        List<String> shortestPath = findShortestPath(destinations);
-        int totalDistance = calculateTotalDistance(shortestPath);
+        if (destinations != null) {
+            List<String> shortestPath = findShortestPath(destinations);
+            int totalDistance = calculateTotalDistance(shortestPath);
 
-        System.out.println("Shortest Path:");
-        printPath(shortestPath);
-        System.out.println("Total Distance: " + totalDistance + " km");
+            System.out.println("Shortest Path:");
+            printPath(shortestPath);
+            System.out.println("Total Distance: " + totalDistance + " km");
+        }
 
         System.out.println("======================================================================");
     }
 
     public List<String> promptLocationsToVisit() {
         Scanner sc = new Scanner(System.in);
-        System.out.print("Enter the locations Rohan wants to visit (separated by commas): ");
-        String input = sc.nextLine();
-        String[] locationNames = input.split(",\\s*");
-        List<String> destinations = new ArrayList<>(Arrays.asList(locationNames));
+        boolean validInput = false;
+        List<String> destinations = new ArrayList<>();
+
+        while (!validInput) {
+            System.out.print("Enter the locations Rohan wants to visit (separated by commas): ");
+            String input = sc.nextLine();
+            String[] locationNames = input.split(",\\s*");
+            destinations = new ArrayList<>(Arrays.asList(locationNames));
+
+            // Check if all locations are valid
+            boolean invalidLocation = false;
+            for (String location : destinations) {
+                if (!isValidLocation(location)) {
+                    invalidLocation = true;
+                    break;
+                }
+            }
+
+            if (invalidLocation) {
+                System.out.println("Invalid input. Please try again.");
+            } else {
+                validInput = true;
+            }
+        }
+
         destinations.add(currentLocation); // Add current location as a destination
         return destinations;
+    }
+
+    public boolean isValidLocation(String location) {
+        return locations.contains(location);
     }
 
     public List<String> findShortestPath(List<String> destinations) {
@@ -69,10 +96,14 @@ public class ThusSpokeRohanKishibe {
                 }
             }
 
-            List<String> path = destinationVertex.shortestPath;
-            shortestPath.addAll(path);
-            allDestinations.remove(destinationVertex.vertexInfo);
-            sourceVertex = destinationVertex;
+            if (destinationVertex != null) {
+                List<String> path = destinationVertex.shortestPath;
+                if (path != null) {
+                    shortestPath.addAll(path);
+                }
+                allDestinations.remove(destinationVertex.vertexInfo);
+                sourceVertex = destinationVertex;
+            }
         }
 
         // Add the remaining locations that were not included in the shortest path
@@ -85,10 +116,17 @@ public class ThusSpokeRohanKishibe {
         return shortestPath;
     }
 
+    class VertexDistanceComparator implements Comparator<Vertex<String, Integer>> {
+        @Override
+        public int compare(Vertex<String, Integer> v1, Vertex<String, Integer> v2) {
+            return Integer.compare(v1.getDistance(), v2.getDistance());
+        }
+    }
+
     private int dijkstra(Vertex<String, Integer> sourceVertex, Vertex<String, Integer> destinationVertex) {
         map.resetVertices();
 
-        PriorityQueue<Vertex<String, Integer>> queue = new PriorityQueue<>(Comparator.comparingInt(Vertex::getDistance));
+        PriorityQueue<Vertex<String, Integer>> queue = new PriorityQueue<>(new VertexDistanceComparator());
         sourceVertex.distance = 0;
         queue.add(sourceVertex);
 
@@ -137,7 +175,7 @@ public class ThusSpokeRohanKishibe {
             sb.append(location);
             sb.append(" -> ");
         }
-        // Remove the trailing " -> " from the last location
+        // Remove -> from the last location
         if (sb.length() > 0) {
             sb.setLength(sb.length() - 4);
         }
