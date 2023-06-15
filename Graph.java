@@ -6,10 +6,6 @@ package jojoland;
 
 import java.util.*;
 
-/**
- *
- * @author Xin Jie
- */
 class Graph<T extends Comparable<T>, N extends Comparable <N>> {
     Vertex<T,N> head;
     int size;
@@ -229,5 +225,19 @@ class Graph<T extends Comparable<T>, N extends Comparable <N>> {
             resetEdgeTwo = resetEdgeTwo.nextEdge;
         }
     }
+	
+     //for extra feature 8
+    public ArrayList<Edge<T, N>> getEdgesOfVertex(T v) {
+         ArrayList<Edge<T, N>> edges = new ArrayList<>();
+         Vertex<T, N> sourceVertex = getVertex(v);
+         if (sourceVertex != null) {
+             Edge<T, N> currentEdge = sourceVertex.firstEdge;
+             while (currentEdge != null) {
+                 edges.add(currentEdge);
+                 currentEdge = currentEdge.nextEdge;
+             }
+         }
+         return edges;
+     } 
    
 }
