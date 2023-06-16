@@ -1,21 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package jojoland;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 public class PearlJam {
     private List<orderList> waitingList;
@@ -24,39 +15,32 @@ public class PearlJam {
     private int dayNum;
     protected String selectedRestaurant;
     protected String[] menu;
-    private HashMap<Customer, LocalDate> customerDiningHistory;
     String residentFilePath = "resources/residents.csv";
     loadFile loadSystemFile = new loadFile();
     ArrayList<resident> resident = loadSystemFile.loadresidentFromFile(residentFilePath);
     ArrayList<ArrayList<orderList>> residentOrderLists;
-    //private ArrayList<orderList> orderList = new ArrayList<>();
 
-    public PearlJam(String selectedRestaurant, int daynum) {
+    public PearlJam(String selectedRestaurant, int daynum, ArrayList<ArrayList<orderList>> residentOrderLists) {
         waitingList = new ArrayList<>();
         orderProcessingList = new ArrayList<>();
         orders = new ArrayList<>();
         this.selectedRestaurant = selectedRestaurant;
-        customerDiningHistory = new HashMap<>();
-        randomOrder ro = new randomOrder(daynum);
-        residentOrderLists = ro.randomOrderGenerator();
+        this.residentOrderLists = residentOrderLists;
         this.dayNum = daynum;
         sortOrdersWithinRestaurants();
     }
     
-    public List<orderList> getOrders() {
-    waitingList.clear(); // Clear the waitingList before populating it again
-
-    for (ArrayList<orderList> orderList : residentOrderLists) {
-        if (!orderList.isEmpty()) {
-            orderList lastOrder = orderList.get(orderList.size() - 1);
-            // Check if the last order is for the selected restaurant and current day
-            if (lastOrder.getRestaurant().equals(selectedRestaurant) && lastOrder.getDayNum() == dayNum) {
-                waitingList.add(lastOrder);
-            }
+    
+    public List<orderList> getOrders(){
+        waitingList.clear(); // Clear the waitingList before populating it again
+        for (int i = 0; i < resident.size(); i++) {
+            ArrayList<orderList> orderList = residentOrderLists.get(i);
+                if(orderList.get(orderList.size()-1).getRestaurant().equals(selectedRestaurant)){ //only check for orders at selectedREstaurant
+                    waitingList.add(orderList.get(orderList.size()-1));
+                }
         }
+        return waitingList;
     }
-    return waitingList;
-}
 
 
     // Sort the waiting list by arrival time in ascending order
@@ -65,6 +49,7 @@ public class PearlJam {
         Collections.sort(waitingList, Comparator.comparing(orderList::getArrivalTime));
         return waitingList;
     }
+
     
     
     // Process orders for Jade Garden restaurant
@@ -185,8 +170,6 @@ public class PearlJam {
 }
 
 
-
-
     // Process orders for Libeccio restaurant
     public void processLibeccioOrders(List<orderList> restaurantOrders) {
         orderProcessingList.clear();
@@ -250,7 +233,7 @@ public class PearlJam {
 
 
 
-    // Sort orders within each restaurant based on restaurant logic and arrival time(need to be corrected)
+    // Sort orders within each restaurant based on restaurant logic and arrival time
     public void sortOrdersWithinRestaurants() {
         waitingList = sortWaitingList();
         Map<String, List<orderList>> ordersByRestaurant = new HashMap<>();
