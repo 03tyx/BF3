@@ -79,9 +79,6 @@ public class ThusSpokeRohanKishibe {
         Vertex<String, Integer> sourceVertex = map.getVertex(currentLocation);
         List<String> allDestinations = new ArrayList<>(destinations);
 
-        // Remove the current location from destinations
-        allDestinations.remove(currentLocation);
-
         // Calculate the shortest path using Dijkstra's algorithm
         while (!allDestinations.isEmpty()) {
             Vertex<String, Integer> destinationVertex = null;
