@@ -1,12 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package jojoland;
+package JOJOLAND;
 
 import java.util.*;
 
 public class ThusSpokeRohanKishibe {
+    
     private Graph<String, Integer> map;
     private List<String> locations;
     private String currentLocation;
@@ -18,14 +15,14 @@ public class ThusSpokeRohanKishibe {
     }
 
     public void thusSpokeRohanKishibe() {
-        System.out.println("List of locations:");
+        System.out.println("List of locations: ");
         for (String location : locations) {
             System.out.printf("%s\n", location);
         }
-        System.out.println();
+        System.out.println("");
 
         List<String> destinations = promptLocationsToVisit();
-        System.out.println("======================================================================");
+        System.out.println("=".repeat(200));
 
         if (destinations != null) {
             List<String> shortestPath = findShortestPath(destinations);
@@ -36,7 +33,7 @@ public class ThusSpokeRohanKishibe {
             System.out.println("Total Distance: " + totalDistance + " km");
         }
 
-        System.out.println("======================================================================");
+        System.out.println("=".repeat(200));
     }
 
     public List<String> promptLocationsToVisit() {
